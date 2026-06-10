@@ -71,6 +71,10 @@ graph TD
 - Runs an inner-product search against the FAISS database to identify the top 5 nearest-neighbor crops.
 - Seeks to the corresponding frame IDs in the video file, extracts the frame, overlays labeled bounding boxes around the matched objects, and saves the matches to `output/search_results/`.
 
+### 6. Multi-User Session Isolation (Streamlit Security)
+- **Session Directories**: In cloud deployments, all active assets (uploaded videos, index files, metadata catalogs, and image crop caches) are saved inside an isolated subdirectory (`output/<session_id>/`) bound to the browser's unique Streamlit session state.
+- **Privacy Enforcement**: Users are physically partitioned on the server filesystem. Different browser connections (tabs or clients) can compile indices and run queries concurrently without any possibility of reading or overwriting other users' uploads or search history.
+
 ---
 
 ## In-Memory Database Schema
