@@ -115,7 +115,6 @@ st.markdown("""
         font-weight: 600;
         border: none;
         border-radius: 8px;
-        padding: 0.5rem 1.5rem;
         transition: all 0.2s ease;
     }
     .stButton>button:hover {
@@ -242,14 +241,20 @@ with tab2:
         faiss_index_db = faiss.read_index(FAISS_INDEX)
         clip_model, clip_processor, clip_device = load_clip_model()
         
-        # Search Bar
-        query_text = st.text_input("Enter natural language description:", placeholder="e.g. a person with red shirt, white jacket, hat, etc.")
-        search_col, clear_col = st.columns([1, 10])
+        # Search Bar - Unified layout
+        col_text, col_btn = st.columns([7, 1], vertical_alignment="bottom")
         
-        with search_col:
-            run_search = st.button("🔍 Search")
+        with col_text:
+            query_text = st.text_input(
+                "Enter natural language description:", 
+                placeholder="e.g. a person with red shirt, white jacket, hat, etc.",
+                key="search_query"
+            )
             
-        if run_search and query_text:
+        with col_btn:
+            run_search = st.button("🔍 Search", use_container_width=True)
+            
+        if (run_search or query_text) and query_text:
             st.markdown(f"**Search Results for:** *\"{query_text}\"*")
             
             # 1. Encode text query to CLIP embedding
