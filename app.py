@@ -1,6 +1,7 @@
 import streamlit as st
 import cv2
 import os
+import uuid
 import numpy as np
 import pandas as pd
 import torch
@@ -130,13 +131,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 YOLO_MODEL_1 = os.path.join(BASE_DIR, "best_v2.pt")
 YOLO_MODEL_2 = os.path.join(BASE_DIR, "cloth_YOLO.pt")
 
-# Initialize session-specific output directory to ensure multi-user isolation
+# Initialize session-specific output directory to ensure multi-user isolation.
+# We generate a unique UUID for each session using Streamlit's native session state.
+# This is 100% reliable and guarantees that no two users ever share the same database folder.
+if "session_uuid" not in st.session_state:
+    st.session_state["session_uuid"] = str(uuid.uuid4())
+
 if "output_dir" not in st.session_state:
-    from streamlit.runtime.scriptrunner import get_script_run_ctx
-    ctx = get_script_run_ctx()
-    session_id = ctx.session_id if ctx else "default"
-    # Sanitise session ID for safe directory naming
-    session_id = "".join([c for c in session_id if c.isalnum() or c in ("-", "_")])
+    session_id = st.session_state["session_uuid"]
     st.session_state["output_dir"] = os.path.join(BASE_DIR, "output", session_id)
     os.makedirs(st.session_state["output_dir"], exist_ok=True)
 
