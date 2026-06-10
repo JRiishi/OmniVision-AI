@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 import faiss
 from transformers import CLIPProcessor, CLIPModel
-from PIL import Image
+from PIL import Image, ImageOps
 from main import process_video_pipeline, get_dominant_color
 
 # Resolve OpenMP runtime conflicts on macOS
@@ -288,6 +288,9 @@ with tab2:
             cols = st.columns(3)
             
             cap = cv2.VideoCapture(VIDEO_SAVE_PATH)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            if not fps or fps <= 0:
+                fps = 30.0
             
             for rank, (score, idx) in enumerate(zip(similarities[0], indices[0]), 1):
                 if idx == -1:
@@ -300,27 +303,35 @@ with tab2:
                 crop_path = str(row['crop_path'])
                 bbox = eval(str(row['bbox']))
                 
+                # Calculate timestamp
+                time_seconds = frame_id / fps
+                minutes = int(time_seconds // 60)
+                seconds = int(time_seconds % 60)
+                timestamp_str = f"{minutes:02d}:{seconds:02d}"
+                
                 # Get column
                 col_ui = cols[(rank - 1) % 3]
                 
                 with col_ui:
-                    # Glass-card style container
+                    # Glass-card style container with red timestamp badge
                     st.markdown(f"""
                         <div class='glass-card'>
                             <h4 style='margin-top:0px;color:#60a5fa;'>Match #{rank} (Frame {frame_id})</h4>
-                            <div style='margin-bottom:10px;'>
+                            <div style='margin-bottom:10px; display: flex; flex-wrap: wrap; gap: 5px;'>
                                 <span class='badge badge-primary'>Sim: {score:.2f}</span>
                                 <span class='badge badge-secondary'>{model_name}</span>
                                 <span class='badge badge-success'>{class_name}</span>
                                 <span class='badge badge-color'>Color: {detected_color}</span>
+                                <span class='badge' style='background-color: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);'>⏱️ {timestamp_str}</span>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
                     
-                    # Display the cropped image
+                    # Display the cropped image resized to fit a uniform square
                     if os.path.exists(crop_path):
                         crop_img = Image.open(crop_path)
-                        st.image(crop_img, caption="Object Crop", use_container_width=True)
+                        uniform_crop = ImageOps.fit(crop_img, (250, 250), Image.Resampling.LANCZOS)
+                        st.image(uniform_crop, caption="Object Crop", use_container_width=True)
                     else:
                         st.error("Crop image not found")
                         
