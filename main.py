@@ -77,8 +77,8 @@ def get_dominant_color(bgr_image):
     return max_color
 
 def process_video_pipeline(video_path, 
-                           yolo_model_path_1="/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/best_v2.pt", 
-                           yolo_model_path_2="/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/cloth_YOLO.pt", 
+                           yolo_model_path_1=None, 
+                           yolo_model_path_2=None, 
                            output_dir="output", 
                            frame_skip=30,
                            progress_callback=None):
@@ -87,6 +87,12 @@ def process_video_pipeline(video_path,
     detect clothing colors using OpenCV, generate OpenAI CLIP embeddings for all object crops,
     and save all crop and metadata.
     """
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    if yolo_model_path_1 is None:
+        yolo_model_path_1 = os.path.join(base_dir, "best_v2.pt")
+    if yolo_model_path_2 is None:
+        yolo_model_path_2 = os.path.join(base_dir, "cloth_YOLO.pt")
+
     os.makedirs(output_dir, exist_ok=True)
     crops_dir = os.path.join(output_dir, "crops")
     os.makedirs(crops_dir, exist_ok=True)
@@ -380,11 +386,12 @@ def compare_models_side_by_side(video_path, model_path_1, model_path_2, output_v
     
 if __name__ == "__main__":
     # Example usage:
-    video_path = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/People in the park - 4K Slow motion stock video - 4K Stock Footage Pro (1080p, h264).mp4"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    video_path = os.path.join(base_dir, "People in the park - 4K Slow motion stock video - 4K Stock Footage Pro (1080p, h264).mp4")
     
     # Paths to the YOLO models
-    model_path_1 = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/best_v2.pt"
-    model_path_2 = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/cloth_YOLO.pt"
+    model_path_1 = os.path.join(base_dir, "best_v2.pt")
+    model_path_2 = os.path.join(base_dir, "cloth_YOLO.pt")
     
     # 1. Run the pipeline to save cropped images and generate the metadata index CSV with detected colors
     print("--- Running Video Indexing Pipeline ---")
@@ -392,7 +399,7 @@ if __name__ == "__main__":
         video_path=video_path,
         yolo_model_path_1=model_path_1,
         yolo_model_path_2=model_path_2,
-        output_dir="/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/output",
+        output_dir=os.path.join(base_dir, "output"),
         frame_skip=30
     )
     

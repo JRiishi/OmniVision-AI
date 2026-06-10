@@ -10,7 +10,11 @@ import faiss
 # Resolve OpenMP runtime conflicts on macOS
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-def run_search_engine(video_path, metadata_csv, embeddings_index, output_dir="/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/output/search_results"):
+def run_search_engine(video_path, metadata_csv, embeddings_index, output_dir=None):
+    if output_dir is None:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        output_dir = os.path.join(base_dir, "output", "search_results")
+    
     # Create output dir for matches
     os.makedirs(output_dir, exist_ok=True)
     
@@ -124,9 +128,10 @@ def run_search_engine(video_path, metadata_csv, embeddings_index, output_dir="/U
         print("===================================================================================================\n")
 
 if __name__ == "__main__":
-    video_path = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/People in the park - 4K Slow motion stock video - 4K Stock Footage Pro (1080p, h264).mp4"
-    metadata_csv = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/output/video_metadata.csv"
-    embeddings_index = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/output/embeddings.index"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    video_path = os.path.join(base_dir, "People in the park - 4K Slow motion stock video - 4K Stock Footage Pro (1080p, h264).mp4")
+    metadata_csv = os.path.join(base_dir, "output", "video_metadata.csv")
+    embeddings_index = os.path.join(base_dir, "output", "embeddings.index")
     
     run_search_engine(
         video_path=video_path,

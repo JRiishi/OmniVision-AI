@@ -17,6 +17,8 @@ __pycache__/
 
 # Large model weights (YOLO models)
 *.pt
+!best_v2.pt
+!cloth_YOLO.pt
 *.onnx
 
 # Local database outputs (crops, FAISS index, metadata CSV)

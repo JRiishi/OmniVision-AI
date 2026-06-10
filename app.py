@@ -127,9 +127,10 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 3. Global paths config
-YOLO_MODEL_1 = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/best_v2.pt"
-YOLO_MODEL_2 = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/cloth_YOLO.pt"
-OUTPUT_DIR = "/Users/riishabhjain/Desktop/AI_VIDEO_SEARCH/output"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+YOLO_MODEL_1 = os.path.join(BASE_DIR, "best_v2.pt")
+YOLO_MODEL_2 = os.path.join(BASE_DIR, "cloth_YOLO.pt")
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 METADATA_CSV = os.path.join(OUTPUT_DIR, "video_metadata.csv")
 FAISS_INDEX = os.path.join(OUTPUT_DIR, "embeddings.index")
 VIDEO_SAVE_PATH = os.path.join(OUTPUT_DIR, "active_video.mp4")
