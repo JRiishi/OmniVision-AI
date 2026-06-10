@@ -1,106 +1,170 @@
-# OmniVision AI: Semantic Video Search & Analytics Engine
+# 🎥 OmniVision AI: Semantic Video Search & Analytics Engine
 
-OmniVision AI is an intelligent visual search engine designed to scan video recordings, detect objects of interest, and enable natural language queries (e.g., *"a person with red shirt"*) to locate corresponding matching frames.
+**OmniVision AI** is a premium, high-performance visual search intelligence platform designed to ingest video footage, detect persons, clothing, and safety gear, classify dominant clothing colors, extract high-dimensional semantic visual embeddings, and enable instant natural language search (e.g., *"a person with red shirt"* or *"someone wearing high-visibility orange jacket"*) with real-time video seeking, highlighting, and relational data analytics.
 
-It integrates state-of-the-art computer vision models, color extraction heuristics, and vector search indexing into a single, cohesive application.
-
----
-
-## Key Features
-
-1. **Dual YOLO Object Detection**:
-   - Uses YOLOv8 (`best_v2.pt`) to locate and crop persons and safety gear.
-   - Uses YOLOv8 (`cloth_YOLO.pt`) to locate and crop clothing items (shirts, pants, jackets, shoes, etc.).
-2. **OpenCV Color Classification**:
-   - Converts clothing crops to the HSV color space and runs pixel-mask segmentations to automatically determine dominant clothing colors (e.g. `red`, `blue`, `green`, `black`).
-3. **OpenAI CLIP Semantic Embeddings**:
-   - Converts BGR image crops into 512-dimensional vector representations using the `openai/clip-vit-base-patch32` visual transformer.
-   - Normalizes embeddings to unit vectors to perform search queries using Cosine Similarity.
-4. **FAISS Vector Database**:
-   - Stores and searches high-dimensional embeddings using a flat inner product index (`faiss.IndexFlatIP`), enabling nearest-neighbor search.
-5. **Classy Streamlit Interface**:
-   - A dark-mode, royal blue-to-teal dashboard providing drag-and-drop video upload, real-time pipeline indexing with progress bars, visual similarity cards showing matches, seek-to-frame highlights, and database analytics charts.
+Designed as an end-to-end computer vision solution, the codebase features a complete **Streamlit Dashboard** and CLI backend using **YOLOv8**, **OpenCV (HSV Segmentation)**, **OpenAI CLIP (Vision Transformer)**, and **FAISS (Facebook AI Similarity Search)**.
 
 ---
 
-## System Workflows
+## 🚀 Key Features
 
-### 1. Ingestion & Database Indexing Pipeline
-
-When a video is indexed:
-1. **Frame Selection**: The video is read frame-by-frame, applying a configurable frame skipping rate (e.g., scanner runs on every 30th frame to minimize computation).
-2. **Object Detection**:
-   - **Model 1 (`best_v2`)** detects people and crops them. Bounding boxes are recorded.
-   - **Model 2 (`cloth_YOLO`)** detects clothing items and crops them. Bounding boxes are recorded.
-3. **Color & CLIP Feature Extraction**:
-   - Clothing crops undergo HSV segmentation inside `get_dominant_color` to classify color names.
-   - All cropped images are fed into CLIP (`clip-vit-base-patch32`) to compute a 512-dimensional semantic feature vector.
-4. **Database Storage**:
-   - Structural details are written to `output/video_metadata.csv`.
-   - Embeddings are added to the FAISS index database and written to `output/embeddings.index`.
-
-### 2. Search & Retrieval Pipeline
-
-When a search query (e.g. *"white jacket"*) is typed:
-1. **Query Encoding**: The text is converted into a 512-dimensional vector embedding using the CLIP text model.
-2. **Vector Search**: The query embedding is passed to `faiss_index.search()` to find the nearest object crops.
-3. **Result Presentation**:
-   - The UI shows matched cropped cards sorted by similarity scores.
-   - Selecting a match seeks to the exact frame in the video file using OpenCV, draws a red bounding box around the matched coordinates, and overlays a label showing the rank, similarity, class, and color.
+*   **Dual YOLOv8 Model Pipeline**:
+    *   **Person & Safety Gear Detector (`best_v2.pt`)**: Extracts persons and high-visibility clothing elements.
+    *   **Clothing Categories Detector (`cloth_YOLO.pt`)**: Detects specific articles of clothing (shirts, pants, jackets, skirts, shorts, hats, bags, shoes, sunglasses).
+*   **OpenCV HSV dominant Color Extraction**: High-fidelity HSV range masking to identify 11 distinct color channels (`black`, `white`, `grey`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink`, `brown`) from cropped clothing elements.
+*   **OpenAI CLIP Feature Encoding**: Converts cropped visual detections into dense 512-dimensional vector representations using the `openai/clip-vit-base-patch32` visual transformer model.
+*   **FAISS Vector Search**: Integrates Facebook AI Similarity Search (`faiss.IndexFlatIP`) utilizing L2-normalized vector representations to perform mathematically exact Cosine Similarity queries at scale.
+*   **Modern Web Dashboard**: Implemented in Streamlit using a custom, high-end dark-themed interface with **royal blue-to-teal-to-cyan** gradients, glassmorphism UI components, real-time progress indexing widgets, metadata dataframes, and Plotly/Matplotlib analytics distribution charts.
+*   **CLI Toolkit**: Fully-featured terminal tools for index compilation and real-time interactive query rendering.
 
 ---
 
-## Directory Organization
+## 🛠️ Tech Stack & Model Details
 
-```
-AI_VIDEO_SEARCH/
-├── app.py                      # Streamlit Search & Analytics Web App (UI)
-├── main.py                     # Video Ingestion Pipeline & Video Comparison Player
-├── search.py                   # Command-line (CLI) search index query script
-├── Architecture.md             # Detailed engineering system layout documentation
-├── README.md                   # Installation, overview, and running guide (This file)
-├── best_v2.pt                  # YOLOv8 Person & Gear detection weights
-├── cloth_YOLO.pt               # YOLOv8 Clothing detection weights
-└── output/                     # Index databases and crop images folder
-    ├── active_video.mp4        # Saved uploaded video recording
-    ├── video_metadata.csv      # Indexed metadata CSV relational database
-    ├── embeddings.index        # FAISS vector database file
-    ├── crops/                  # Cropped JPEGs of all detected objects
-    └── search_results/         # Extracted matching search result frames
+*   **Computer Vision**: YOLOv8 (Ultralytics) for visual object detection.
+*   **Feature Extraction**: OpenAI CLIP (Vision-Language pre-trained Transformer) for cross-modal embedding mapping.
+*   **Vector Database**: FAISS (IndexFlatIP) for nearest neighbor cosine-similarity indexing.
+*   **Color Classification**: OpenCV (Hue/Saturation/Value segmentations).
+*   **Web Framework**: Streamlit (with custom CSS injection).
+*   **Data Analysis**: Pandas (relational catalog mapping) & Streamlit charts.
+*   **Hardware Acceleration**: PyTorch with automatic platform detection (`cuda` for NVIDIA GPU, `mps` for Apple Silicon GPU, or `cpu` fallback).
+
+---
+
+## 📁 Directory Architecture
+
+```text
+OmniVision-AI/
+├── app.py                      # Streamlit Search & Analytics Web App (Main UI)
+├── main.py                     # Core Video Ingestion, YOLO Detection, & CLIP Indexing Pipeline
+├── search.py                   # Interactive Command-line Query Utility (CLI)
+├── Architecture.md             # In-depth architectural layout & flow diagrams
+├── README.md                   # System configuration and running guide (This file)
+├── requirements.txt            # Python dependencies lists
+├── best_v2.pt                  # YOLOv8 weights (Person & safety gear)
+├── cloth_YOLO.pt               # YOLOv8 weights (Clothing classifications)
+└── output/                     # Generated databases and image caches
+    ├── active_video.mp4        # Cached uploaded video recording
+    ├── video_metadata.csv      # Indexed CSV catalog (Relational schema)
+    ├── embeddings.index        # Vector database flat file (FAISS index)
+    ├── crops/                  # Directory storing cropped image assets (JPEGs)
+    └── search_results/         # Extracted matching frame highlights
 ```
 
 ---
 
-## Installation & Setup
+## 📥 Installation & Environment Setup
 
-Ensure Python 3.10+ and a virtual environment are set up:
+Follow these steps to set up OmniVision AI on your local system:
 
-1. **Activate the Virtual Environment**:
-   ```bash
-   source .venv/bin/activate
-   ```
+### 1. Prerequisites
+*   Python 3.10 or higher.
+*   `git` installed on your system.
 
-2. **Run the Streamlit Dashboard**:
-   ```bash
-   streamlit run app.py
-   ```
-   *This will launch the local web server on [http://localhost:8501](http://localhost:8501).*
+### 2. Clone the Repository
+```bash
+git clone https://github.com/JRiishi/OmniVision-AI.git
+cd OmniVision-AI
+```
+
+### 3. Create a Virtual Environment
+It is highly recommended to isolate your project dependencies:
+*   **macOS / Linux**:
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+*   **Windows**:
+    ```cmd
+    python -m venv .venv
+    .venv\Scripts\activate
+    ```
+
+### 4. Install Dependencies
+Upgrade pip and install the required libraries:
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5. Add Model Weights
+Ensure that the two YOLO models are present in the root folder:
+*   `best_v2.pt` (Person/high-vis gear detector)
+*   `cloth_YOLO.pt` (Clothing classifier)
+
+*Note: Large model files (`.pt`), raw video files, and database cache folders are configured in `.gitignore` to keep git repositories clean.*
 
 ---
 
-## Pipeline Execution options via Terminal CLI
+## 🖥️ Launching the Application
 
-As a developer, you can also run indexing and queries directly via terminal commands:
+### A. Running the Streamlit Web UI
+The easiest and most presentable way to interact with OmniVision AI is through the Streamlit web dashboard. Run:
+```bash
+streamlit run app.py
+```
+This launches a local web server (typically on `http://localhost:8501`). The dashboard contains three main tabs:
+1.  **Video Ingest & Index**: Upload a video, specify settings (frame skip rate, confidence threshold), and compile the FAISS index database in real-time.
+2.  **Semantic Search Interface**: Search for visual elements in natural language (e.g. *"a person wearing a yellow helmet"*, *"blue pants"*). Click the checkbox to view the full matching video frame with overlaid red bounding boxes and classification details.
+3.  **Database Analytics**: Visualize summary statistics of your indexed dataset, object class frequencies, and clothing color distributions.
 
-- **Run Indexing**:
-  Modify parameters in the `__main__` block of `main.py` and execute:
-  ```bash
-  python main.py
-  ```
+### B. Indexing & Querying via CLI
+If you prefer using the command line:
 
-- **Query Database**:
-  Run the CLI search utility:
-  ```bash
-  python search.py
-  ```
-  *(Enter your query, e.g., "a person with red shirt", and inspect match logs in the console or JPEGs saved under `output/search_results/`.)*
+1.  **Ingest and Index Video**:
+    Open `main.py`, customize your target video path in the `if __name__ == "__main__":` block, and execute:
+    ```bash
+    python main.py
+    ```
+    This prints extraction progress to the terminal and outputs the metadata database (`output/video_metadata.csv`) and FAISS index (`output/embeddings.index`).
+
+2.  **Search the Index**:
+    Run the command line query search:
+    ```bash
+    python search.py
+    ```
+    Type your description query (e.g., `"a person with red shirt"`) and the script will look up the vector database, write the top matching frame crops to console logs, and export high-resolution matching frame visualizations under `output/search_results/`.
+
+---
+
+## ⚙️ Technical Highlights & Optimization
+
+### 1. Resolving OpenMP Conflicts on macOS
+Under macOS, importing FAISS and PyTorch simultaneously can trigger a runtime conflict with the OpenMP implementation (`libomp.dylib`). OmniVision AI handles this automatically by setting:
+```python
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+```
+
+### 2. Hugging Face Transformers v5 Compatibility
+Modern versions of Hugging Face `transformers` wrap CLIP outputs inside structured `BaseModelOutputWithPooling` objects rather than raw PyTorch tensors. Feature extraction in `main.py` is safely configured using:
+```python
+with torch.no_grad():
+    # Retrieve the pooled features output from CLIP
+    features = clip_model.get_image_features(**inputs).pooler_output
+```
+This guarantees robust performance regardless of minor library updates.
+
+### 3. GPU Acceleration
+The models automatically check for the best hardware backend. In order of priority:
+1.  `cuda` for NVIDIA GPUs.
+2.  `mps` (Metal Performance Shaders) for Apple Silicon M1/M2/M3 chips.
+3.  `cpu` as a default fallback.
+
+---
+
+## 📊 Relational Database Schema
+When a video is indexed, its relational catalog is saved to `output/video_metadata.csv`. The column schema is:
+*   `frame_id`: Frame index number from the source video.
+*   `model`: The model that detected the object (`best_v2` or `cloth_YOLO`).
+*   `object_id`: Index of the detected object in that frame.
+*   `class_name`: Detected label (e.g., `person`, `jacket`, `hat`, etc.).
+*   `confidence`: Object detector confidence score (0 to 1).
+*   `crop_path`: The disk path to the saved cropped image JPEG.
+*   `bbox`: Coordinates of the bounding box `[x1, y1, x2, y2]`.
+*   `detected_color`: Color classification from OpenCV (or `N/A` for general person bounding boxes).
+
+---
+
+## 📜 License
+This project is prepared as a custom visual search application interface. All rights reserved.
