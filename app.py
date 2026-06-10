@@ -129,7 +129,18 @@ st.markdown("""
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 YOLO_MODEL_1 = os.path.join(BASE_DIR, "best_v2.pt")
 YOLO_MODEL_2 = os.path.join(BASE_DIR, "cloth_YOLO.pt")
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+
+# Initialize session-specific output directory to ensure multi-user isolation
+if "output_dir" not in st.session_state:
+    from streamlit.runtime.scriptrunner import get_script_run_ctx
+    ctx = get_script_run_ctx()
+    session_id = ctx.session_id if ctx else "default"
+    # Sanitise session ID for safe directory naming
+    session_id = "".join([c for c in session_id if c.isalnum() or c in ("-", "_")])
+    st.session_state["output_dir"] = os.path.join(BASE_DIR, "output", session_id)
+    os.makedirs(st.session_state["output_dir"], exist_ok=True)
+
+OUTPUT_DIR = st.session_state["output_dir"]
 METADATA_CSV = os.path.join(OUTPUT_DIR, "video_metadata.csv")
 FAISS_INDEX = os.path.join(OUTPUT_DIR, "embeddings.index")
 VIDEO_SAVE_PATH = os.path.join(OUTPUT_DIR, "active_video.mp4")
