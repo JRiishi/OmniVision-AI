@@ -1,0 +1,31 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large media files (videos)
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Large model weights (YOLO models)
+*.pt
+*.onnx
+
+# Local database outputs (crops, FAISS index, metadata CSV)
+output/
+
+# macOS files
+.DS_Store
+
+# Local training datasets
+cloths/
+dataset/
+yolo_highvis_person_detection_dataset/
